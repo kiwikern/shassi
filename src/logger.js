@@ -1,5 +1,5 @@
 const winston = require('winston');
-const level = 'warn';
+const level = 'debug';
 
 const instances = [];
 

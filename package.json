@@ -10,7 +10,9 @@
   "author": "Kim Kern <github@kimkern.de>",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "casperjs": "^1.1.4",
+    "jsonwebtoken": "^8.1.1",
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.4.0",
