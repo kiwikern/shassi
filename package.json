@@ -12,6 +12,7 @@
     "casperjs": "^1.1.4",
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.4.0",
     "mongoose": "^5.0.7",
     "phantomjs": "^2.1.7"
   }
