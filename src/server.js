@@ -7,6 +7,17 @@ class Server {
   static _getRouter() {
     const router = new Router();
     router.use('/user', userRouter.routes(), userRouter.allowedMethods());
+
+    router.use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (err) {
+        ctx.status = err.status || 500;
+        ctx.body = err.message;
+        ctx.app.emit('error', err, ctx);
+      }
+    });
+
     return router;
   }
 
