@@ -2,11 +2,13 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const Router = require('koa-router');
 const userRouter = require('./user/user.router');
+const productRouter = require('./product/product.router');
 
 class Server {
   static _getRouter() {
     const router = new Router();
     router.use('/user', userRouter.routes(), userRouter.allowedMethods());
+    router.use('/product', productRouter.routes(), productRouter.allowedMethods());
 
     router.use(async (ctx, next) => {
       try {

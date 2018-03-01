@@ -15,20 +15,19 @@ class UserController {
 
   static async login(username, password) {
     log.debug('login', {username});
-    const storedPassword = await this._getPassword(username);
-    return await Authenticator.login(password, storedPassword);
+    const user = await this.getUserByName(username);
+    return await Authenticator.login(user._id, password, user.password);
   }
 
-  static async _getPassword(username) {
+  static async getUserByName(username) {
     if (!username) {
       throw createError('No username given', 400);
     }
-    const user = await User.findOne({username})
-      .select('password');
+    const user = await User.findOne({username});
     if (!user) {
       throw createError('Could not find user ' + username, 404);
     }
-    return user.password;
+    return user;
   }
 
 }
