@@ -46,6 +46,13 @@ class Crawler {
     return parseFloat(priceText.replace(',', '.'));
   }
 
+  getName() {
+    return this.document.getElementsByTagName('h1')[0]
+      .childNodes[0]
+      .nodeValue
+      .trim();
+  }
+
   /**
    * Does not work because scripts are not loaded.
    */

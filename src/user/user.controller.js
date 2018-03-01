@@ -30,6 +30,11 @@ class UserController {
     return user;
   }
 
+  static async getUserMail(userId) {
+    const user = await User.findById(userId);
+    return user.email;
+  }
+
 }
 
 module.exports = UserController;

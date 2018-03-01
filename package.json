@@ -20,6 +20,7 @@
     "koa-jwt": "^3.3.0",
     "koa-router": "^7.4.0",
     "mongoose": "^5.0.7",
+    "nodemailer": "^4.6.0",
     "phantomjs": "^2.1.7",
     "winston": "^2.4.0"
   }

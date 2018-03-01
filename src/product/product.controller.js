@@ -3,6 +3,7 @@ const log = require('../logger').getLogger('ProductController');
 const createError = require('../http.error');
 const Crawler = require('./product.crawler');
 const CronJob = require('cron').CronJob;
+const UpdatesSender = require('../notifications/updates.sender');
 
 class ProductController {
 
@@ -12,17 +13,18 @@ class ProductController {
 
   static async addProduct(product) {
     log.debug('create new product', {product});
-    const sizes = await ProductController.getSizes(product);
+    const sizes = await ProductController.initProduct(product);
     await this.saveProduct(product);
     return sizes;
   }
 
 
-  static async getSizes(product) {
+  static async initProduct(product) {
     const crawler = await Crawler.getCrawler(product);
     let sizes;
     try {
-      sizes = await crawler.getSizes()
+      sizes = await crawler.getSizes();
+      product.name = await crawler.getName();
     } catch (error) {
       log.error('Could not crawl product', error);
       if (error.status) throw error;
@@ -50,8 +52,24 @@ class ProductController {
     log.info('Updating all products.');
     const ids = await Product.find({isActive: true})
       .select('_id');
+    const updatesByUser = new Map();
     const updates = await Promise.all(ids.map(id => this.createUpdate(id)
-      .catch(error => log.error('Could not update all products.', error))));
+      .catch(error => log.error('Could not update products.', {id}, error))));
+    updates.map(update => {
+      if (!update) {
+        return;
+      }
+      const userId = update.product.userId.toString();
+      if (!updatesByUser.has(userId)) {
+        updatesByUser.set(userId, []);
+      }
+      updatesByUser.get(userId).push(update);
+    });
+    for (const [userId, updates] of updatesByUser) {
+      UpdatesSender.sendUpdatesMail(userId, updates)
+        .catch(error => log.error('Could not send mail.', {userId: userId.toString(), updatesSize: updates.length}, error));
+
+    }
   }
 
   static async createUpdate(productId) {
@@ -63,7 +81,7 @@ class ProductController {
       if (!latestUpdate || latestUpdate.price !== update.price || latestUpdate.isAvailable !== update.isAvailable) {
         log.debug('saving update', update);
         await product.update({$push: {updates: update}});
-        return {product, update};
+        return {product, new: update, old: latestUpdate};
       } else {
         return null;
       }
@@ -76,7 +94,7 @@ class ProductController {
     const crawler = await Crawler.getCrawler(product);
     let update = {};
     update.price = await crawler.getPrice();
-    if (product.size) {
+    if (product.size && product.size.id) {
       update.isAvailable = await crawler.isSizeAvailable(product.size.id);
     }
     log.debug('found update', update);

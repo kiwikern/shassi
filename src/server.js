@@ -30,7 +30,7 @@ class Server {
       .use(bodyParser())
       .use(router.routes())
       .use(router.allowedMethods())
-      .listen(3000);
+      .listen(40000);
   }
 }
 
