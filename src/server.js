@@ -8,7 +8,7 @@ class Server {
   static _getRouter() {
     const router = new Router();
     router.use('/user', userRouter.routes(), userRouter.allowedMethods());
-    router.use('/product', productRouter.routes(), productRouter.allowedMethods());
+    router.use('/products', productRouter.routes(), productRouter.allowedMethods());
 
     router.use(async (ctx, next) => {
       try {
