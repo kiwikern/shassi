@@ -2,6 +2,7 @@ const Product = require('./product.model');
 const log = require('../logger').getLogger('ProductController');
 const createError = require('../http.error');
 const Crawler = require('./product.crawler');
+const CronJob = require('cron').CronJob;
 
 class ProductController {
 
@@ -109,6 +110,12 @@ class ProductController {
       throw createError('Product not found', 404);
     }
     await product.remove();
+  }
+
+  static startCronJob() {
+    const job = new CronJob('00 00 8,14,18 * * *', () => this.updateAllProducts());
+    job.start();
+    log.info('Product CronJob started:', job.cronTime.source)
   }
 
 }

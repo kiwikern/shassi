@@ -33,4 +33,6 @@ router.del('/:id', async ctx => {
   ctx.body = 'Successfully removed.';
 });
 
+ProductController.startCronJob();
+
 module.exports = router;
