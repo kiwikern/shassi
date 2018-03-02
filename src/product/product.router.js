@@ -16,10 +16,11 @@ router.post('/', async ctx => {
   ctx.body = await ProductController.addProduct(product);
 });
 
-router.post('/:id/size', async ctx => {
+router.post('/:id', async ctx => {
   const productId = ctx.params.id;
-  const size = ctx.request.body;
-  ctx.body = await ProductController.setSize(productId, size.id, size.name);
+  const size = ctx.request.body.size;
+  const name = ctx.request.body.name;
+  ctx.body = await ProductController.update(productId, size.id, size.name, name);
 });
 
 router.get('/:id/update', async ctx => {

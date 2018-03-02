@@ -8,36 +8,40 @@ const UpdatesSender = require('../notifications/updates.sender');
 class ProductController {
 
   static async getAllProductsForUser(userId) {
-    return await Product.find({userId});
+    const products = await Product.find({userId});
+    return products.map(p => p.toJSON())
   }
 
   static async addProduct(product) {
     log.debug('create new product', {product});
-    const sizes = await ProductController.initProduct(product);
-    await this.saveProduct(product);
-    return sizes;
+    const initializedProduct = await ProductController.initProduct(product);
+    initializedProduct._id = (await this.saveProduct(initializedProduct))._id;
+    log.debug('saved new product', initializedProduct._id);
+    return initializedProduct;
   }
 
 
   static async initProduct(product) {
     const crawler = await Crawler.getCrawler(product);
-    let sizes;
     try {
-      sizes = await crawler.getSizes();
+      product.sizes = await crawler.getSizes();
       product.name = await crawler.getName();
+      product.price = await crawler.getPrice();
     } catch (error) {
       log.error('Could not crawl product', error);
       if (error.status) throw error;
       throw createError('Could not crawl product.', 400);
     }
-    return sizes;
+    return product;
   }
 
-  static async setSize(productId, sizeId, sizeName) {
-    log.debug('setSize', {productId, sizeId, sizeName});
+  static async update(productId, sizeId, sizeName, name) {
+    log.debug('update', {productId, sizeId, sizeName});
     const product = await ProductController.findById(productId);
-    await product.set({size: {name: sizeName, id: sizeId}});
-    return product;
+    await product.set({size: {name: sizeName, id: sizeId}, name});
+    await product.save();
+    await this.createUpdate(productId);
+    return (await this.findById(productId)).toJSON();
   }
 
   static async findById(productId) {
@@ -67,7 +71,10 @@ class ProductController {
     });
     for (const [userId, updates] of updatesByUser) {
       UpdatesSender.sendUpdatesMail(userId, updates)
-        .catch(error => log.error('Could not send mail.', {userId: userId.toString(), updatesSize: updates.length}, error));
+        .catch(error => log.error('Could not send mail.', {
+          userId: userId.toString(),
+          updatesSize: updates.length
+        }, error));
 
     }
   }
@@ -110,11 +117,14 @@ class ProductController {
   static async saveProduct(product) {
     const newProduct = new Product(product);
     try {
-      await newProduct.save();
+      return await newProduct.save();
     } catch (err) {
       log.error('Could not create product.', err);
       if (err.code === 11000) {
-        throw createError('Product already exists.', 409);
+        const conflictingProduct = await Product.findOne({url: product.url, userId: product.userId});
+        log.error('found conflict', conflictingProduct._id);
+        const error = JSON.stringify({message: 'Product already exists.', _id: conflictingProduct._id});
+        throw createError(error, 409);
       } else {
         throw createError();
       }
