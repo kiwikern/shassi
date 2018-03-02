@@ -8,7 +8,8 @@ const UpdatesSender = require('../notifications/updates.sender');
 class ProductController {
 
   static async getAllProductsForUser(userId) {
-    const products = await Product.find({userId});
+    const products = await Product.find({userId})
+      .sort({_id: 1});
     return products.map(p => p.toJSON())
   }
 
@@ -55,6 +56,7 @@ class ProductController {
   static async updateAllProducts() {
     log.info('Updating all products.');
     const ids = await Product.find({isActive: true})
+      .sort({_id:1})
       .select('_id');
     const updatesByUser = new Map();
     const updates = await Promise.all(ids.map(id => this.createUpdate(id)
