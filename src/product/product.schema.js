@@ -9,7 +9,13 @@ productUpdateSchema.virtual('createdAt').get(function () {
   return this._id.getTimestamp();
 });
 
-productUpdateSchema.set('toJSON', { virtuals: true });
+const removeId = (doc, ret, options) => {
+  delete ret._id;
+  if (ret.id) delete ret.id;
+  return ret;
+};
+
+productUpdateSchema.set('toJSON', {virtuals: true, versionKey: false, transform: removeId});
 
 const productSchema = mongoose.Schema({
   url: {type: String, required: true},
@@ -28,15 +34,34 @@ productSchema.index({url: 1, userId: 1}, {unique: true});
 
 productSchema.statics.getStores = () => productSchema.path('store').enumValues;
 
-productSchema.virtual('latestUpdate').get(function () {
-  return this.updates.reduce((u1, u2) => u1._id > u2._id ? u1 : u2, {});
+const getLatestUpdate = function (updates) {
+  return updates.reduce((u1, u2) => u1._id > u2._id ? u1 : u2, {});
+};
+
+productSchema.virtual('price').get(function () {
+  const latestUpdate = getLatestUpdate(this.updates);
+  return latestUpdate ? latestUpdate.price : null;
+});
+
+productSchema.virtual('isAvailable').get(function () {
+  const latestUpdate = getLatestUpdate(this.updates);
+  return latestUpdate ? latestUpdate.isAvailable : null;
 });
 
 productSchema.virtual('createdAt').get(function () {
   return this._id.getTimestamp();
 });
 
-productSchema.set('toJSON', { virtuals: true });
+productSchema.virtual('sizeName').get(function () {
+  return this.size ? this.size.name : '';
+});
+
+const select = (doc, ret, options) => {
+  delete ret.size;
+  return ret;
+};
+
+productSchema.set('toJSON', {virtuals: true, versionKey: false, transform: select});
 
 
 module.exports = productSchema;
