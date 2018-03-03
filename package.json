@@ -22,6 +22,7 @@
     "mongoose": "^5.0.7",
     "nodemailer": "^4.6.0",
     "phantomjs": "^2.1.7",
+    "telegraf": "^3.19.0",
     "winston": "^2.4.0"
   }
 }
