@@ -1,6 +1,7 @@
 const Database = require('./mongo');
 const Server = require('./server');
 const log = require('./logger').getLogger('Index');
+const Bot = require('./telegram/telegram.bot');
 
 async function init() {
   try {
@@ -12,3 +13,5 @@ async function init() {
 }
 
 init();
+
+new Bot();
