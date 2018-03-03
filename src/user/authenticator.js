@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const jwtMiddleware = require('koa-jwt');
-const jwtConfig = require('../secrets.js').jwt;
+const jwtConfig = require('../../secrets.js').jwt;
 const PasswordEncrypter = require('./password.encrypter');
 const log = require('../logger').getLogger('Authenticator');
 const throwError = require('../http.error');

@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const mailSecrets = require('../secrets.js').mail;
+const mailSecrets = require('../../secrets.js').mail;
 const log = require('../logger').getLogger('MailSender');
 
 const transporter = nodemailer.createTransport({

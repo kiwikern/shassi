@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const secrets = require('./secrets').mongo;
+const secrets = require('../secrets').mongo;
 
 class Database {
   static async init() {
