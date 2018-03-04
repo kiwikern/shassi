@@ -11,9 +11,9 @@ router.get('/', async ctx => {
 });
 
 router.post('/', async ctx => {
-  const product = ctx.request.body;
-  product.userId = ctx.state.user.userId;
-  ctx.body = await ProductController.addProduct(product);
+  const {url} = ctx.request.body;
+  const userId = ctx.state.user.userId;
+  ctx.body = await ProductController.addProduct(url, userId);
 });
 
 router.post('/:id', async ctx => {

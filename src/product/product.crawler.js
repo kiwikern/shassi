@@ -3,12 +3,12 @@ const log = require('../logger').getLogger('ProductCrawler');
 const createError = require('../http.error');
 
 class Crawler {
-  static async getCrawler(product) {
+  static async getCrawler(url) {
     let crawler;
-    if (product.store === 'hm') {
-      crawler = new HmCrawler(product.url);
+    if (url.includes('hm.' + 'com')) {
+      crawler = new HmCrawler(url);
     } else {
-      log.error('No crawler found for given store.', {store: product.store, id: product._id});
+      log.error('No crawler found for given url.', {url});
       throw createError('Unknown store', 400);
     }
     await crawler.init();

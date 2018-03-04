@@ -13,17 +13,18 @@ class ProductController {
     return products.map(p => p.toJSON())
   }
 
-  static async addProduct(product) {
-    log.debug('create new product', {product});
-    const initializedProduct = await ProductController.initProduct(product);
+  static async addProduct(url, userId) {
+    log.debug('create new product', {url, userId});
+    const initializedProduct = await ProductController.initProduct(url, userId);
     initializedProduct._id = (await this.saveProduct(initializedProduct))._id;
     log.debug('saved new product', initializedProduct._id);
     return initializedProduct;
   }
 
 
-  static async initProduct(product) {
-    const crawler = await Crawler.getCrawler(product);
+  static async initProduct(url, userId) {
+    const crawler = await Crawler.getCrawler(url);
+    const product = {url, userId};
     try {
       product.sizes = await crawler.getSizes();
       product.name = await crawler.getName();
@@ -100,7 +101,7 @@ class ProductController {
   }
 
   static async getNewUpdate(product) {
-    const crawler = await Crawler.getCrawler(product);
+    const crawler = await Crawler.getCrawler(product.url);
     let update = {};
     update.price = await crawler.getPrice();
     if (product.size && product.size.id) {

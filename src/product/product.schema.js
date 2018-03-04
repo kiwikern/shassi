@@ -20,7 +20,6 @@ productUpdateSchema.set('toJSON', {virtuals: true, versionKey: false, transform:
 const productSchema = mongoose.Schema({
   url: {type: String, required: true},
   name: String,
-  store: {type: String, required: true, enum: ['hm']},
   userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
   size: {
     id: String,
@@ -50,6 +49,14 @@ productSchema.virtual('isAvailable').get(function () {
 
 productSchema.virtual('createdAt').get(function () {
   return this._id.getTimestamp();
+});
+
+productSchema.virtual('store').get(function () {
+  if (this.url.includes('hm.' + 'com')) {
+    return 'H&M';
+  } else {
+    return '';
+  }
 });
 
 productSchema.virtual('sizeName').get(function () {
