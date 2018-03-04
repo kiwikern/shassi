@@ -33,8 +33,16 @@ class Crawler {
   }
 
   getSizes() {
-    const options = this.document.getElementById('options-variants')
-      .children;
+    const variants = this.document.getElementById('options-variants');
+    if (!variants) {
+      const sizeSpan = this.document.getElementById('text-selected-variant');
+      let name = 'ONESIZE';
+      if (sizeSpan) {
+        name = (sizeSpan.innerHTML + '').replace('Gr.&nbsp;', '').trim() || 'ONESIZE';
+      }
+      return [{id: 'ONESIZE', name, isAvailable: true}];
+    }
+    const options = variants.children;
     return Array.from(options)
       .map(child => ({
         id: child.id,
@@ -48,6 +56,9 @@ class Crawler {
   }
 
   isSizeAvailable(id) {
+    if (id === 'ONESIZE') {
+      return true;
+    }
     return !this.document.getElementById(id).className.includes('soldOut');
   }
 

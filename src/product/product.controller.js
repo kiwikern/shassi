@@ -106,7 +106,7 @@ class ProductController {
       log.debug('Product is not in catalog anymore.', product._id);
       product.isActive = false;
       product.save();
-      return null;
+      return {price: product.price, isAvailable: false};
     }
 
     let update = {};
