@@ -57,7 +57,7 @@ class ProductController {
   static async updateAllProducts() {
     log.info('Updating all products.');
     const ids = await Product.find({isActive: true})
-      .sort({_id:1})
+      .sort({_id: 1})
       .select('_id');
     const updatesByUser = new Map();
     const updates = await Promise.all(ids.map(id => this.createUpdate(id)
@@ -83,25 +83,32 @@ class ProductController {
   }
 
   static async createUpdate(productId) {
-    try {
-      const product = await this.findById(productId);
-      const latestUpdate = ProductController.findLatestUpdate(product);
-      const update = await ProductController.getNewUpdate(product);
+    const product = await this.findById(productId);
+    if (!product.isActive) {
+      throw createError('Cannot create update for inactive product.', 400);
+    }
+    const latestUpdate = ProductController.findLatestUpdate(product);
+    const update = await ProductController.getNewUpdate(product);
 
-      if (!latestUpdate || latestUpdate.price !== update.price || latestUpdate.isAvailable !== update.isAvailable) {
-        log.debug('saving update', update);
-        await product.update({$push: {updates: update}});
-        return {product, new: update, old: latestUpdate};
-      } else {
-        return null;
-      }
-    } catch (error) {
-      throw error;
+    if (update && (!latestUpdate || latestUpdate.price !== update.price || latestUpdate.isAvailable !== update.isAvailable)) {
+      log.debug('saving update', update);
+      await product.update({$push: {updates: update}});
+      return {product, new: update, old: latestUpdate};
+    } else {
+      return null;
     }
   }
 
   static async getNewUpdate(product) {
     const crawler = await Crawler.getCrawler(product.url);
+
+    if (!crawler.isInCatalog()) {
+      log.debug('Product is not in catalog anymore.', product._id);
+      product.isActive = false;
+      product.save();
+      return null;
+    }
+
     let update = {};
     update.price = await crawler.getPrice();
     if (product.size && product.size.id) {

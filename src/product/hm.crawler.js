@@ -43,6 +43,10 @@ class Crawler {
       }));
   }
 
+  isInCatalog() {
+    return !this.document.getElementById('errorMessage')
+  }
+
   isSizeAvailable(id) {
     return !this.document.getElementById(id).className.includes('soldOut');
   }
