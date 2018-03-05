@@ -27,9 +27,10 @@ class Bot {
   }
 
   addURLs() {
-    this.telegraf.hears(/^(?!\/).+/, async ctx => {
+    this.telegraf.hears(/^(?!\/).*((?:(?:http)|(?:www))\S+)/m, async ctx => {
       try {
-        const product = await ProductController.addProduct(ctx.message.text, ctx.session.userId);
+        const url = ctx.match[1];
+        const product = await ProductController.addProduct(url, ctx.session.userId);
         if (product.sizes && product.sizes.length > 1) {
           ctx.reply('Which size do you want?', this.createKeyboard(product.sizes, product._id));
         } else {
