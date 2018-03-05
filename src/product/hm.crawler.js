@@ -1,7 +1,7 @@
-// const casper = require('casper').create();
 const jsdom = require("jsdom");
 const request = require('request');
 const {JSDOM} = jsdom;
+const API_URL = 'https://api.hm.com/v2/de/de/products/ugc?articleCodes=';
 const log = require('../logger').getLogger('HM-Crawler');
 const createError = require('../http.error');
 
@@ -13,6 +13,10 @@ class Crawler {
     if (url.includes('m.hm' + '.com')) {
       url = url.replace('m.hm' + '.com', 'www.hm' + '.com');
     }
+    let articleId = (/#article=(\d+-\w+)/.exec(url) || [])[0];
+    articleId = articleId || (/\?article=(\d+-\w+)/.exec(url) || [])[0];
+
+    this.apiUrl = API_URL + articleId;
     this.url = url;
   }
 
@@ -29,7 +33,20 @@ class Crawler {
         return resolve(body)
       });
     });
+    const apiResponse = await new Promise((resolve, reject) => {
+      return request({uri: this.apiUrl}, (error, resp, body) => {
+        if (error) {
+          log.error('Could not request URL', this.url, error);
+          if (error.message && error.message.includes('SnackBar.Message.Error.InvalidURL')) {
+            throw createError('Invalid URL', 400);
+          }
+          return reject(error, resp);
+        }
+        return resolve(body)
+      });
+    });
     this.document = new JSDOM(body).window.document;
+    this.apiResponse = JSON.parse(apiResponse);
   }
 
   getSizes() {

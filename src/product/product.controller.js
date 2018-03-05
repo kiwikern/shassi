@@ -17,7 +17,7 @@ class ProductController {
     log.debug('create new product', {url, userId});
     const initializedProduct = await ProductController.initProduct(url, userId);
     initializedProduct._id = (await this.saveProduct(initializedProduct))._id;
-    log.debug('saved new product', initializedProduct._id);
+    log.debug('saved new product', initializedProduct._id + '');
     return initializedProduct;
   }
 

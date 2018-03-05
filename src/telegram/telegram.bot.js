@@ -33,7 +33,11 @@ class Bot {
         if (product.sizes && product.sizes.length > 1) {
           ctx.reply('Which size do you want?', this.createKeyboard(product.sizes, product._id));
         } else {
-          await ProductController.createUpdate(product._id);
+          if (product.sizes && product.sizes[0] && product.sizes[0].id !== 'ONESIZE') {
+            await ProductController.update(product._id, product.sizes[0]);
+          } else {
+            await ProductController.createUpdate(product._id);
+          }
           const p = await ProductController.findById(product._id);
           ctx.reply(`Product ${p.name} for ${p.price}€ at store ${p.store} was added.`);
         }

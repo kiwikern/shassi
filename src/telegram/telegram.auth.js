@@ -40,10 +40,14 @@ module.exports.startCommand = async (ctx, next) => {
   if (!isValid) {
     ctx.reply('Given token was invalid. Try again');
   } else {
-    UserController.setTelegramId(userId, ctx.from.id);
-    ctx.session.userId = userId;
-    ctx.reply(`Welcome! Your account was successfully connected.`);
-    ctx.reply('You can add a product by sending its URL to this chat.');
+    try {
+      await UserController.setTelegramId(userId, ctx.from.id);
+      ctx.session.userId = userId;
+      ctx.reply(`Welcome! Your account was successfully connected.`);
+      ctx.reply('You can add a product by sending its URL to this chat.');
+    } catch (err) {
+      ctx.reply(`Could not connect Telegram account. Already linked to different shassi user account.`);
+    }
   }
   return next(ctx);
 };

@@ -31,9 +31,10 @@ const productSchema = mongoose.Schema({
 
 productSchema.index({url: 1, userId: 1}, {unique: true});
 
-productSchema.statics.getStores = () => productSchema.path('store').enumValues;
-
 const getLatestUpdate = function (updates) {
+  if (!updates) {
+    return null;
+  }
   return updates.reduce((u1, u2) => u1._id > u2._id ? u1 : u2, {});
 };
 
@@ -54,6 +55,8 @@ productSchema.virtual('createdAt').get(function () {
 productSchema.virtual('store').get(function () {
   if (this.url.includes('hm.' + 'com')) {
     return 'H&M';
+  } else if (this.url.includes('asos')) {
+    return 'ASOS';
   } else {
     return '';
   }

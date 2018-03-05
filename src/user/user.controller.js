@@ -51,7 +51,6 @@ class UserController {
       return false;
     }
     const dbToken = await TelegramToken.findOne({userId});
-    log.debug('found TelegramToken', dbToken);
     return (dbToken || {}).token === token;
   }
 
@@ -62,8 +61,17 @@ class UserController {
 
   static async setTelegramId(userId, telegramId) {
     const user = await User.findById(userId);
-    user.telegramId = telegramId;
-    user.save();
+    try {
+      user.telegramId = telegramId;
+      await user.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        throw createError('Telegram client already linked to other user.', 400);
+      } else {
+        log.error('Could not set TelegramId', err + '');
+        throw err;
+      }
+    }
   }
 
   static async getByTelegramId(telegramId) {
