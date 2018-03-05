@@ -1,4 +1,3 @@
-const Authenticator = require('../user/authenticator');
 const UserController = require('../user/user.controller');
 const log = require('../logger').getLogger('TelegramAuth');
 
@@ -31,14 +30,14 @@ module.exports.authSession = async (ctx, next) => {
 
 };
 
-/**
- * TODO: start with https://telegram.me/shassi_bot?start=/start ${token}
- */
 module.exports.startCommand = async (ctx, next) => {
   log.debug('/start');
-  const token = ctx.message.text.replace('/start ', '');
-  const userId = Authenticator.checkToken(token, 'telegram');
-  if (!userId) {
+  const message = ctx.message.text.replace('/start ', '');
+  const params = message.split('---');
+  const userId = params[0];
+  const token = params.length > 1 ? params[1] : null;
+  const isValid = await UserController.checkTelegramAuthToken(userId, token);
+  if (!isValid) {
     ctx.reply('Given token was invalid. Try again');
   } else {
     UserController.setTelegramId(userId, ctx.from.id);

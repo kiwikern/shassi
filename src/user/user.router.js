@@ -15,7 +15,7 @@ router.post('/login', async ctx => {
 
 router.get('/telegram', Authenticator.getAuthMiddleware(), async ctx => {
   const userId = ctx.state.user.userId;
-  ctx.body = await UserController.getTelegramAuthToken(userId);
+  ctx.body = await UserController.createTelegramAuthToken(userId);
 });
 
 module.exports = router;

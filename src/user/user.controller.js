@@ -1,4 +1,5 @@
 const User = require('./user.model');
+const TelegramToken = require('./telegram-token.model');
 const Authenticator = require('./authenticator');
 const PasswordEncrypter = require('./password.encrypter');
 const log = require('../logger').getLogger('UserController');
@@ -30,8 +31,28 @@ class UserController {
     return user;
   }
 
-  static async getTelegramAuthToken(userId) {
-    return Authenticator.generateTelegramToken(userId);
+  static async createTelegramAuthToken(userId) {
+    const dbToken = await TelegramToken.findOne({userId});
+    let token;
+    if (dbToken) {
+      dbToken.set({createdAt: Date.now()});
+      dbToken.save();
+      token = dbToken.token;
+    } else {
+      token = Math.random().toString(36).substring(2);
+      await (new TelegramToken({token, userId})).save()
+    }
+    return `${userId}---${token}`;
+  }
+
+  static async checkTelegramAuthToken(userId, token) {
+    log.debug('checking Telegram Token', {userId, token});
+    if (!userId || !token) {
+      return false;
+    }
+    const dbToken = await TelegramToken.findOne({userId});
+    log.debug('found TelegramToken', dbToken);
+    return (dbToken || {}).token === token;
   }
 
   static async getUserMail(userId) {
