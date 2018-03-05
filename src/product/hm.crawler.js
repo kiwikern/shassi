@@ -13,8 +13,11 @@ class Crawler {
     if (url.includes('m.hm' + '.com')) {
       url = url.replace('m.hm' + '.com', 'www.hm' + '.com');
     }
-    let articleId = (/#article=(\d+-\w+)/.exec(url) || [])[0];
-    articleId = articleId || (/\?article=(\d+-\w+)/.exec(url) || [])[0];
+    if (url.startsWith('www.')) {
+      url = url.replace('www.', 'http://www.');
+    }
+    let articleId = (/#article=(\d+-\w+)/.exec(url) || [])[1];
+    articleId = articleId || (/\?article=(\d+-\w+)/.exec(url) || [])[1];
 
     this.apiUrl = API_URL + articleId;
     this.url = url;
@@ -25,28 +28,27 @@ class Crawler {
       return request({uri: this.url}, (error, resp, body) => {
         if (error) {
           log.error('Could not request URL', this.url, error);
-          if (error.message && error.message.includes('SnackBar.Message.Error.InvalidURL')) {
-            throw createError('Invalid URL', 400);
+          if (error.message && error.message.includes('Invalid URI')) {
+            throw createError('SnackBar.Message.Error.InvalidURL', 400);
           }
           return reject(error, resp);
         }
         return resolve(body)
       });
     });
-    const apiResponse = await new Promise((resolve, reject) => {
-      return request({uri: this.apiUrl}, (error, resp, body) => {
-        if (error) {
-          log.error('Could not request URL', this.url, error);
-          if (error.message && error.message.includes('SnackBar.Message.Error.InvalidURL')) {
-            throw createError('Invalid URL', 400);
-          }
-          return reject(error, resp);
-        }
-        return resolve(body)
-      });
-    });
+    // const apiResponse = await new Promise((resolve, reject) => {
+    //   return request({uri: this.apiUrl, json: true}, (error, resp, body) => {
+    //     if (error) {
+    //       log.error('Could not request URL', this.url, error);
+    //       if (error.message && error.message.includes('SnackBar.Message.Error.InvalidURL')) {
+    //         throw createError('Invalid URL', 400);
+    //       }
+    //       return reject(error, resp);
+    //     }
+    //     return resolve(body)
+    //   });
+    // });
     this.document = new JSDOM(body).window.document;
-    this.apiResponse = JSON.parse(apiResponse);
   }
 
   getSizes() {
