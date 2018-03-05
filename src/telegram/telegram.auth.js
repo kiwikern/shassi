@@ -19,7 +19,7 @@ module.exports.authSession = async (ctx, next) => {
     log.debug('No user found', {telegramId: ctx.from.id});
     if (ctx.message.text && !ctx.message.text.includes('/start')) {
       // TODO: Check URL
-      ctx.reply('You need to link your shassi account first. Go to https://shassi.kimkern.de/auth/telegram');
+      ctx.reply('You need to link your shassi account first. Go to https://shassi.kimkern.de?action=createTelegramToken');
     }
     // Do not call next() without account.
 
