@@ -30,9 +30,24 @@ class UserController {
     return user;
   }
 
+  static async getTelegramAuthToken(userId) {
+    return Authenticator.generateTelegramToken(userId);
+  }
+
   static async getUserMail(userId) {
     const user = await User.findById(userId);
     return user.email;
+  }
+
+  static async setTelegramId(userId, telegramId) {
+    const user = await User.findById(userId);
+    user.telegramId = telegramId;
+    user.save();
+  }
+
+  static async getByTelegramId(telegramId) {
+    const user = await User.findOne({telegramId});
+    return user ? user._id : null;
   }
 
 }

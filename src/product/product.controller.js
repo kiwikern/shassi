@@ -25,6 +25,10 @@ class ProductController {
   static async initProduct(url, userId) {
     const crawler = await Crawler.getCrawler(url);
     const product = {url, userId};
+    if (await !crawler.isInCatalog()) {
+      log.info('Product does not exist.');
+      throw createError('Product does not exist.', 404);
+    }
     try {
       product.sizes = await crawler.getSizes();
       product.name = await crawler.getName();
@@ -37,10 +41,15 @@ class ProductController {
     return product;
   }
 
-  static async update(productId, sizeId, sizeName, name) {
-    log.debug('update', {productId, sizeId, sizeName});
+  static async update(productId, size, name) {
+    log.debug('update', {productId, size});
     const product = await ProductController.findById(productId);
-    await product.set({size: {name: sizeName, id: sizeId}, name});
+    if (name) {
+      await product.set({name});
+    }
+    if (size) {
+      await product.set({size});
+    }
     await product.save();
     await this.createUpdate(productId);
     return (await this.findById(productId)).toJSON();

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
     username: {type: String, unique: true},
     email: String,
     password: String,
+    telegramId: {type: String, unique: true, sparse: true}
   });
 
 module.exports = userSchema;

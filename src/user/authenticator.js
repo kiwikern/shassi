@@ -16,21 +16,40 @@ class Authenticator {
       log.debug('missing password.');
       throw throwError('You need to provide a password.', 400);
     }
+    await PasswordEncrypter.checkPassword(password, storedPassword);
+    return this.generateToken(userId, 'user')
+  }
 
-    try {
-      await PasswordEncrypter.checkPassword(password, storedPassword)
-    } catch (err) {
-      log.debug('wrong password.');
-      throw throwError('The entered password was not correct.', 401);
-    }
+  static generateTelegramToken(userId) {
+    return this.generateToken(userId, 'telegram', '1h')
+  }
 
+  static generateToken(userId, role, expiresIn = '30d') {
     try {
-      const jwtOptions = {algorithm: 'HS256', expiresIn: `30d`};
+      const jwtOptions = {algorithm: 'HS256', expiresIn};
       log.debug('token expires in', jwtOptions.expiresIn);
-      return {jwt: jwt.sign({userId}, jwtConfig.secret, jwtOptions)};
+      return {jwt: jwt.sign({userId, role}, jwtConfig.secret, jwtOptions)};
     } catch (error) {
       log.error('could not generate token', error);
       throw throwError('Could not generate token.');
+    }
+  }
+
+  static checkToken(token, role) {
+    try {
+      const decoded = jwt.verify(token, jwtConfig.secret);
+      if (decoded.role === role) {
+        return decoded.userId
+      } else {
+        log.warn('Got jwt for invalid role', {decoded});
+        return null;
+      }
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        log.warn('Token is expired', {expiredAt: err.expiredAt})
+      }
+      log.warn('Got invalid jwt', {token});
+      return null;
     }
   }
 }

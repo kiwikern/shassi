@@ -23,7 +23,7 @@ class PasswordEncrypter {
           return resolve();
         } else {
           log.debug('password incorrect.');
-          return reject(throwError('wrong password'));
+          return reject(throwError('wrong password', 401));
         }
       });
     });

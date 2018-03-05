@@ -20,7 +20,7 @@ router.post('/:id', async ctx => {
   const productId = ctx.params.id;
   const size = ctx.request.body.size;
   const name = ctx.request.body.name;
-  ctx.body = await ProductController.update(productId, size.id, size.name, name);
+  ctx.body = await ProductController.update(productId, size, name);
 });
 
 router.get('/:id/update', async ctx => {
