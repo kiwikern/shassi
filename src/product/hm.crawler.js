@@ -57,7 +57,10 @@ class Crawler {
       const sizeSpan = this.document.getElementById('text-selected-variant');
       let name = 'ONESIZE';
       if (sizeSpan) {
-        name = (sizeSpan.innerHTML + '').replace('Gr.&nbsp;', '').trim() || 'ONESIZE';
+        name = (sizeSpan.innerHTML + '')
+          .replace('Gr.&nbsp;', '')
+          .replace('Größe&nbsp;', '')
+          .trim() || 'ONESIZE';
       }
       return [{id: 'ONESIZE', name, isAvailable: true}];
     }
