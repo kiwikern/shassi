@@ -9,7 +9,7 @@ class ProductController {
 
   static async getAllProductsForUser(userId) {
     const products = await Product.find({userId})
-      .sort({_id: 1});
+      .sort({_id: -1});
     return products.map(p => p.toJSON())
   }
 
@@ -96,12 +96,14 @@ class ProductController {
     if (!product.isActive) {
       throw createError('Cannot create update for inactive product.', 400);
     }
-    const latestUpdate = ProductController.findLatestUpdate(product);
+    const latestUpdate = ProductController.findLatestUpdate(product) || {};
     const update = await ProductController.getNewUpdate(product);
 
-    if (update && (!latestUpdate || latestUpdate.price !== update.price || latestUpdate.isAvailable !== update.isAvailable)) {
+    const hasPriceChanged = latestUpdate.price !== update.price;
+    const hasAvailabilityChanged = latestUpdate.isAvailable !== update.isAvailable;
+    if (update && (hasPriceChanged || hasAvailabilityChanged)) {
       log.debug('saving update', update);
-      await product.update({$push: {updates: update}});
+      await product.update({$push: {updates: update}, $set: {hasUnreadUpdate: true}});
       return {product, new: update, old: latestUpdate};
     } else {
       return null;
@@ -152,10 +154,7 @@ class ProductController {
 
   static async deleteProduct(productId) {
     log.debug('delete product', {productId});
-    const product = await Product.findById(productId);
-    if (!product) {
-      throw createError('Product not found', 404);
-    }
+    const product = await this.findById(productId);
     await product.remove();
   }
 
@@ -163,6 +162,13 @@ class ProductController {
     const job = new CronJob('00 00 8,14,18 * * *', () => this.updateAllProducts());
     job.start();
     log.info('Product CronJob started:', job.cronTime.source)
+  }
+
+  static async markRead(productId) {
+      log.debug('Mark product read', productId);
+    const product = await this.findById(productId);
+    product.hasUnreadUpdate = false;
+    await product.save();
   }
 
 }

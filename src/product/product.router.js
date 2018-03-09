@@ -28,6 +28,11 @@ router.get('/:id/update', async ctx => {
   ctx.body = await ProductController.createUpdate(productId);
 });
 
+router.post('/:id/markread', async ctx => {
+  const productId = ctx.params.id;
+  ctx.body = await ProductController.markRead(productId);
+});
+
 router.del('/:id', async ctx => {
   const productId = ctx.params.id;
   await ProductController.deleteProduct(productId);

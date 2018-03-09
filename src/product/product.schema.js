@@ -26,7 +26,8 @@ const productSchema = mongoose.Schema({
     name: String
   },
   updates: [productUpdateSchema],
-  isActive: {type: Boolean, default: true}
+  isActive: {type: Boolean, default: true},
+  hasUnreadUpdate: {type: Boolean, default: false},
 });
 
 productSchema.index({url: 1, userId: 1}, {unique: true});
@@ -50,6 +51,11 @@ productSchema.virtual('isAvailable').get(function () {
 
 productSchema.virtual('createdAt').get(function () {
   return this._id.getTimestamp();
+});
+
+productSchema.virtual('updatedAt').get(function () {
+  const latestUpdate = getLatestUpdate(this.updates);
+  return latestUpdate ? latestUpdate._id.getTimestamp() : this._id.getTimestamp();
 });
 
 productSchema.virtual('store').get(function () {
