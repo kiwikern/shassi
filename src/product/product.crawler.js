@@ -1,5 +1,6 @@
 const HmCrawler = require('./hm.crawler');
 const AsosCrawler = require('./asos.crawler');
+const AboutYouCrawler = require('./aboutyou.crawler');
 const WeekdayCrawler = require('./weekday.crawler');
 const CosCrawler = require('./cos.crawler');
 const log = require('../logger').getLogger('ProductCrawler');
@@ -16,6 +17,8 @@ class Crawler {
       crawler = new WeekdayCrawler(url);
     } else if (url.includes('cos' + 'stores.')) {
       crawler = new CosCrawler(url);
+    } else if (url.includes('about' + 'you.de')) {
+      crawler = new AboutYouCrawler(url);
     } else {
       log.error('No crawler found for given url.', {url});
       throw createError('Unknown store', 400);

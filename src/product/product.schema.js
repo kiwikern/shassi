@@ -61,6 +61,8 @@ productSchema.virtual('store').get(function () {
     return 'Weekday';
   } else if (this.url.includes('cos' + 'stores')) {
     return 'COS';
+  } else if (this.url.includes('about' + 'you')) {
+    return 'ABOUT YOU';
   } else {
     return '';
   }

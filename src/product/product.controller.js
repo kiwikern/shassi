@@ -119,7 +119,7 @@ class ProductController {
     }
 
     let update = {};
-    update.price = await crawler.getPrice();
+    update.price = await crawler.getPrice(product.size ? product.size.id : null);
     if (product.size && product.size.id) {
       update.isAvailable = await crawler.isSizeAvailable(product.size.id);
     }
