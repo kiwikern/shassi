@@ -59,6 +59,8 @@ productSchema.virtual('store').get(function () {
     return 'ASOS';
   } else if (this.url.includes('weekday.')) {
     return 'Weekday';
+  } else if (this.url.includes('cos' + 'stores')) {
+    return 'COS';
   } else {
     return '';
   }
