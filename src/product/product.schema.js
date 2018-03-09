@@ -57,6 +57,8 @@ productSchema.virtual('store').get(function () {
     return 'H&M';
   } else if (this.url.includes('asos')) {
     return 'ASOS';
+  } else if (this.url.includes('weekday.')) {
+    return 'Weekday';
   } else {
     return '';
   }
