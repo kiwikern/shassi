@@ -79,6 +79,11 @@ class UserController {
     return user ? user._id : null;
   }
 
+  static async getById(userId) {
+    const user = await User.findById(userId);
+    return user;
+  }
+
 }
 
 module.exports = UserController;

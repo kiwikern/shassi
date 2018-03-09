@@ -82,11 +82,7 @@ class ProductController {
       updatesByUser.get(userId).push(update);
     });
     for (const [userId, updates] of updatesByUser) {
-      UpdatesSender.sendUpdatesMail(userId, updates)
-        .catch(error => log.error('Could not send mail.', {
-          userId: userId.toString(),
-          updatesSize: updates.length
-        }, error));
+      UpdatesSender.notify(userId, updates);
 
     }
   }
@@ -172,5 +168,7 @@ class ProductController {
   }
 
 }
+
+// ProductController.updateAllProducts();
 
 module.exports = ProductController;

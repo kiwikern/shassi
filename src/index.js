@@ -13,5 +13,3 @@ async function init() {
 }
 
 init();
-
-new Bot();

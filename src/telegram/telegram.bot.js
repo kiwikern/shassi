@@ -5,6 +5,7 @@ const secrets = require('../../secrets').telegram;
 const authSession = require('./telegram.auth').authSession;
 const startCommand = require('./telegram.auth').startCommand;
 const ProductController = require('../product/product.controller');
+const UserController = require('../user/user.controller');
 const log = require('../logger').getLogger('TelegramBot');
 
 class Bot {
@@ -70,6 +71,12 @@ class Bot {
     });
   }
 
+  async notifyAboutUpdate(product) {
+    const telegramId = (await UserController.getById(product.userId)).telegramId;
+    const text = `There are new updates for your product [${product.name}](shassi.kimkern.de/products/${product._id})`;
+    this.telegraf.telegram.sendMessage(telegramId, text, Telegraf.Extra.markdown())
+  }
+
   createKeyboard(sizes, productId) {
     return Markup
       .inlineKeyboard(sizes.map(s => Markup.callbackButton(`${s.name}${s.isAvailable ? '' : ' (n/a)'}`, `${s.name}|-|${s.id}|-|${productId}`)))
@@ -79,4 +86,4 @@ class Bot {
   }
 }
 
-module.exports = Bot;
+module.exports = new Bot();
