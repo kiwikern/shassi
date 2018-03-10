@@ -51,7 +51,7 @@ class ProductController {
       await product.set({size});
     }
     await product.save();
-    await this.createUpdate(productId);
+    await this.createUpdate(productId, true);
     return (await this.findById(productId)).toJSON();
   }
 
@@ -87,7 +87,7 @@ class ProductController {
     }
   }
 
-  static async createUpdate(productId) {
+  static async createUpdate(productId, preventUnread) {
     const product = await this.findById(productId);
     if (!product.isActive) {
       throw createError('Cannot create update for inactive product.', 400);
@@ -99,7 +99,7 @@ class ProductController {
     const hasAvailabilityChanged = latestUpdate.isAvailable !== update.isAvailable;
     if (update && (hasPriceChanged || hasAvailabilityChanged)) {
       log.debug('saving update', update);
-      await product.update({$push: {updates: update}, $set: {hasUnreadUpdate: true}});
+      await product.update({$push: {updates: update}, $set: {hasUnreadUpdate: !preventUnread}});
       return {product, new: update, old: latestUpdate};
     } else {
       return null;

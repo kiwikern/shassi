@@ -17,7 +17,8 @@ class UserController {
   static async login(username, password) {
     log.debug('login', {username});
     const user = await this.getUserByName(username);
-    return await Authenticator.login(user._id, password, user.password);
+    const jwt = await Authenticator.login(user._id, password, user.password);
+    return {jwt, user}
   }
 
   static async getUserByName(username) {
@@ -82,6 +83,18 @@ class UserController {
   static async getById(userId) {
     const user = await User.findById(userId);
     return user;
+  }
+
+  static async getNotificationTypes(userId) {
+    const user = await User.findById(userId);
+    return user.notificationTypes;
+  }
+
+  static async updateUser(userId, userUpdate) {
+    const user = await User.findById(userId);
+    Object.assign(user, userUpdate);
+    await user.save();
+    return user.toJSON();
   }
 
 }

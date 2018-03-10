@@ -7,17 +7,23 @@ const log = require('../logger').getLogger('UpdatesSender');
 class UpdatesSender {
 
   static async notify(userId, updates) {
-    this.sendUpdatesMail(userId, updates)
-      .catch(error => log.error('Could not send mail.', {
-        userId: userId.toString(),
-        updatesSize: updates.length
-      }, error));
+    const notificationTypes = UserController.getNotificationTypes(userId);
 
-    this.sendTelegramNotifications(userId, updates)
-      .catch(error => log.error('Could not send telegram notifications.', {
-        userId: userId.toString(),
-        updatesSize: updates.length
-      }, error));
+    if (notificationTypes.email) {
+      this.sendUpdatesMail(userId, updates)
+        .catch(error => log.error('Could not send mail.', {
+          userId: userId.toString(),
+          updatesSize: updates.length
+        }, error));
+    }
+
+    if (notificationTypes.telegram) {
+      this.sendTelegramNotifications(userId, updates)
+        .catch(error => log.error('Could not send telegram notifications.', {
+          userId: userId.toString(),
+          updatesSize: updates.length
+        }, error));
+    }
   }
 
   static async sendUpdatesMail(recipientId, updates) {

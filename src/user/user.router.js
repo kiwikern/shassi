@@ -18,4 +18,15 @@ router.get('/telegram', Authenticator.getAuthMiddleware(), async ctx => {
   ctx.body = await UserController.createTelegramAuthToken(userId);
 });
 
+router.put('/', Authenticator.getAuthMiddleware(), async ctx => {
+  const userId = ctx.state.user.userId;
+  const notificationTypes = ctx.request.body;
+  ctx.body = await UserController.updateUser(userId, notificationTypes);
+});
+
+router.get('/', Authenticator.getAuthMiddleware(), async ctx => {
+  const userId = ctx.state.user.userId;
+  ctx.body = (await UserController.getById(userId)).toJSON();
+});
+
 module.exports = router;
