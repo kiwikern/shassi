@@ -1,5 +1,6 @@
 const UserController = require('../user/user.controller');
 const log = require('../logger').getLogger('TelegramAuth');
+const secrets = require('../../secrets').telegram;
 
 
 module.exports.authSession = async (ctx, next) => {
@@ -18,8 +19,7 @@ module.exports.authSession = async (ctx, next) => {
 
     log.debug('No user found', {telegramId: ctx.from.id});
     if (ctx.message.text && !ctx.message.text.includes('/start')) {
-      // TODO: Check URL
-      ctx.reply('You need to link your shassi account first. Go to https://shassi.kimkern.de?action=createTelegramToken');
+      ctx.reply(`You need to link your shassi account first. Go to ${secrets.domain}?action=createTelegramToken`);
     }
     // Do not call next() without account.
 

@@ -73,7 +73,7 @@ class Bot {
 
   async notifyAboutUpdate(product) {
     const telegramId = (await UserController.getById(product.userId)).telegramId;
-    const text = `There are new updates for your product [${product.name}](shassi.kimkern.de/products/${product._id})`;
+    const text = `There are new updates for your product [${product.name}](${secrets.domain}/products/${product._id})`;
     this.telegraf.telegram.sendMessage(telegramId, text, Telegraf.Extra.markdown())
   }
 
