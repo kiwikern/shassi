@@ -1,13 +1,15 @@
 const MailSender = require('./mail.sender');
 const UpdatesFormatter = require('./updates.formatter');
 const UserController = require('../user/user.controller');
-const Bot = require('../telegram/telegram.bot');
 const log = require('../logger').getLogger('UpdatesSender');
+let Bot;
+// Load asynchronously: Otherwise ProductController is not initialized.
+setTimeout(() => Bot = require('../telegram/telegram.bot'));
 
 class UpdatesSender {
 
   static async notify(userId, updates) {
-    const notificationTypes = UserController.getNotificationTypes(userId);
+    const notificationTypes = await UserController.getNotificationTypes(userId);
 
     if (notificationTypes.email) {
       this.sendUpdatesMail(userId, updates)
@@ -40,6 +42,7 @@ class UpdatesSender {
   }
 
   static async sendTelegramNotifications(userId, updates) {
+    log.debug('Sending Telegram notifications', {userId: userId.toString(), size: updates.length});
     const promises = [];
     for (const update of updates) {
       promises.push(Bot.notifyAboutUpdate(update.product));

@@ -121,13 +121,13 @@ class ProductController {
     if (product.size && product.size.id) {
       update.isAvailable = await crawler.isSizeAvailable(product.size.id);
     }
-    log.debug('found update', update);
+    log.silly('found update', update);
     return update;
   }
 
   static findLatestUpdate(product) {
     const latestUpdate = product.get('updates').reduce((u1, u2) => u1._id > u2._id ? u1 : u2, {});
-    log.debug('found latest Update', {price: latestUpdate.price, isAvailable: latestUpdate.isAvailable});
+    log.silly('found latest Update', {price: latestUpdate.price, isAvailable: latestUpdate.isAvailable});
     return latestUpdate;
   }
 
@@ -168,7 +168,5 @@ class ProductController {
   }
 
 }
-
-// ProductController.updateAllProducts();
 
 module.exports = ProductController;
