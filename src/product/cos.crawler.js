@@ -24,7 +24,18 @@ class Crawler {
 
     this.document = new JSDOM(this.body).window.document;
 
-    this.articleId = /(?!\/)\d+-(\d+)[^\/]*$/.exec(this.url)[1];
+    const sizeInput = this.document.querySelector('.productSizes input');
+    if (sizeInput && sizeInput.value) {
+      this.articleId = sizeInput.value;
+    } else {
+        this.articleId = /(?!\/)\d+-(\d+)[^\/]*$/.exec(this.url)[1];
+    }
+    try {
+      this.colorId = /#(?:c-)?(\d+)$/.exec(this.url)[1];
+    } catch (e) {
+      log.warn('Could not get color id');
+    }
+
 
     const apiUrl = 'https://www.cosstores.com/de/product/GetVariantData?variantId=' + this.articleId;
     this.article = (await axios.get(apiUrl, {headers})).data;
@@ -37,13 +48,23 @@ class Crawler {
       const name = label.textContent;
       const id = label.attributes.for.value;
       const isAvailable = !label.attributes.class.value.includes('outOfStock');
-      sizes.push({name, id, isAvailable});
+      let hasChosenColor = true;
+      try {
+        const colorId = label.children[0].attributes.getNamedItem('data-colorid').value;
+        hasChosenColor = !colorId || !this.colorId || colorId === this.colorId;
+      } catch (e) {
+        log.warn('Could not detect chosen color.', e);
+        hasChosenColor = true;
+      }
+      if (hasChosenColor) {
+        sizes.push({name, id, isAvailable});
+      }
     }
     return sizes;
   }
 
   isInCatalog() {
-    // TODO
+    // TODO: /Archive/ in redirected URL?
     return true;
   }
 
