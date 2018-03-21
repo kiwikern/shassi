@@ -1,6 +1,6 @@
 {
   "name": "shassi",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shopping Assistant",
   "main": "index.js",
   "scripts": {
