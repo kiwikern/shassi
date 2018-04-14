@@ -75,7 +75,7 @@ class ProductController {
     const updates = await Promise.all(ids.map(id => this.createUpdate(id)
       .catch(error => log.error('Could not update products.', {id}, error))));
     updates.map(update => {
-      if (!update) {
+      if (!update || !update.new || !update.new.isAvailable) {
         return;
       }
       const userId = update.product.userId.toString();
