@@ -43,7 +43,11 @@ class Crawler {
 
     if (this.articleId) {
       const apiUrl = 'https://www.cosstores.com/de/product/GetVariantData?variantId=' + this.articleId;
-      this.article = (await axios.get(apiUrl, {headers})).data;
+      try {
+        this.article = (await axios.get(apiUrl, {headers})).data;
+      } catch (err) {
+        log.info('Could not fetch cos product API', err);
+      }
     }
   }
 
@@ -70,9 +74,14 @@ class Crawler {
   }
 
   isInCatalog() {
-    // TODO: /Archive/ in redirected URL?
     if (!this.document) {
       return false;
+    }
+    const titleMatches = /<title>.+<\/title>/.exec(this.document.documentElement.innerHTML);
+    if (Array.isArray(titleMatches) && titleMatches[0]) {
+      if (titleMatches[0].includes('Archive')) {
+        return false;
+      }
     }
     const errorElems = this.document.querySelectorAll('.errorPage');
     const hasErrorElems = Array.isArray(errorElems) && errorElems.length > 1;
