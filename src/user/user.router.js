@@ -5,7 +5,7 @@ const Authenticator = require('../user/authenticator');
 
 router.post('/', async ctx => {
   const user = ctx.request.body;
-  ctx.body = await UserController.createUser(user.username, user.password);
+  ctx.body = await UserController.createUser(user.username, user.password, user.email);
 });
 
 router.post('/login', async ctx => {

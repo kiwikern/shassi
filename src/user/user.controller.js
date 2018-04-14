@@ -7,10 +7,10 @@ const createError = require('../http.error');
 
 class UserController {
 
-  static async createUser(username, plainPassword) {
+  static async createUser(username, plainPassword, email) {
     log.debug('create new user', {username});
     const password = await PasswordEncrypter.encryptPassword(plainPassword);
-    const newUser = new User({username, password});
+    const newUser = new User({username, password, email});
     return await newUser.save();
   }
 
