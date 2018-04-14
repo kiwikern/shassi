@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "nodemon src/index.js",
-    "debug": "node --inspect src/index.js"
+    "debug": "node --inspect src/index.js",
+    "mongo": "mongod"
   },
   "author": "Kim Kern <github@kimkern.de>",
   "license": "ISC",
