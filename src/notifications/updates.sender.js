@@ -31,6 +31,10 @@ class UpdatesSender {
   static async sendUpdatesMail(recipientId, updates) {
     log.debug('sendUpdateMail', {userId: recipientId.toString(), size: updates.length});
     const email = await UserController.getUserMail(recipientId);
+    if (!email) {
+      log.info('Did not send mail notification, missing address', recipientId);
+      return;
+    }
     const mailText = UpdatesFormatter.format(updates);
     const mailOptions = {
       to: email,
