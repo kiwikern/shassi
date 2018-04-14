@@ -7,9 +7,6 @@ class Crawler {
     if (!url.includes('week' + 'day')) {
       throw createError('SnackBar.Message.Error.NonStoreURL', 400);
     }
-    if (url.startsWith('www.')) {
-      url = url.replace('www.', 'http://www.');
-    }
     this.url = url;
   }
 

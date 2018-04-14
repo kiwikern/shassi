@@ -13,9 +13,6 @@ class Crawler {
     if (url.includes('m.hm' + '.com')) {
       url = url.replace('m.hm' + '.com', 'www.hm' + '.com');
     }
-    if (url.startsWith('www.')) {
-      url = url.replace('www.', 'http://www.');
-    }
     let articleId = (/#article=(\d+-\w+)/.exec(url) || [])[1];
     articleId = articleId || (/\?article=(\d+-\w+)/.exec(url) || [])[1];
 

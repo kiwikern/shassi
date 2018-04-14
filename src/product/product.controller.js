@@ -14,6 +14,9 @@ class ProductController {
   }
 
   static async addProduct(url, userId) {
+    if (url.startsWith('www.')) {
+      url = url.replace('www.', 'http://www.');
+    }
     log.debug('create new product', {url, userId});
     const initializedProduct = await ProductController.initProduct(url, userId);
     initializedProduct._id = (await this.saveProduct(initializedProduct))._id;
