@@ -17,25 +17,34 @@ class Crawler {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
       'Cookie': 'HMCORP_locale=de_DE;HMCORP_currency=EUR;',
     };
-    this.body = (await axios.get(this.url, {headers})).data;
+    try {
+      this.body = (await axios.get(this.url, {headers})).data;
 
-    this.document = new JSDOM(this.body).window.document;
+      this.document = new JSDOM(this.body).window.document;
 
-    const sizeInput = this.document.querySelector('.productSizes input');
-    if (sizeInput && sizeInput.value) {
-      this.articleId = sizeInput.value;
-    } else {
-        this.articleId = /(?!\/)\d+-(\d+)[^\/]*$/.exec(this.url)[1];
+      const sizeInput = this.document.querySelector('.productSizes input');
+      if (sizeInput && sizeInput.value) {
+        this.articleId = sizeInput.value;
+      } else {
+          this.articleId = /(?!\/)\d+-(\d+)[^\/]*$/.exec(this.url)[1];
+      }
+    } catch (err) {
+      log.warn('Could not fetch document', err);
+      if (!(err && err.message && err.message.includes('404'))) {
+        throw createError('Could not fetch document', 404);
+      }
     }
+
     try {
       this.colorId = /#(?:c-)?(\d+)$/.exec(this.url)[1];
     } catch (e) {
-      log.warn('Could not get color id');
+      log.info('Could not get color id');
     }
 
-
-    const apiUrl = 'https://www.cosstores.com/de/product/GetVariantData?variantId=' + this.articleId;
-    this.article = (await axios.get(apiUrl, {headers})).data;
+    if (this.articleId) {
+      const apiUrl = 'https://www.cosstores.com/de/product/GetVariantData?variantId=' + this.articleId;
+      this.article = (await axios.get(apiUrl, {headers})).data;
+    }
   }
 
   getSizes() {
@@ -62,7 +71,12 @@ class Crawler {
 
   isInCatalog() {
     // TODO: /Archive/ in redirected URL?
-    return true;
+    if (!this.document) {
+      return false;
+    }
+    const errorElems = this.document.querySelectorAll('.errorPage');
+    const hasErrorElems = Array.isArray(errorElems) && errorElems.length > 1;
+    return !hasErrorElems;
   }
 
   isSizeAvailable(id) {
