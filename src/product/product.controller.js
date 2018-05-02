@@ -98,10 +98,10 @@ class ProductController {
     const latestUpdate = ProductController.findLatestUpdate(product) || {};
     const update = await ProductController.getNewUpdate(product);
 
-    const hasPriceChanged = latestUpdate.price !== update.price;
+    const hasPriceChanged = latestUpdate.price + '' !== update.price + '';
     const hasAvailabilityChanged = latestUpdate.isAvailable !== update.isAvailable;
     if (update && (hasPriceChanged || hasAvailabilityChanged)) {
-      log.debug('saving update', update);
+      log.debug('saving update', {update, hasPriceChanged, hasAvailabilityChanged});
       await product.update({$push: {updates: update}, $set: {hasUnreadUpdate: !preventUnread}});
       return {product, new: update, old: latestUpdate};
     } else {
