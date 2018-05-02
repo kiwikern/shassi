@@ -49,7 +49,7 @@ class UpdatesSender {
     log.debug('Sending Telegram notifications', {userId: userId.toString(), size: updates.length});
     const promises = [];
     for (const update of updates) {
-      promises.push(Bot.notifyAboutUpdate(update.product));
+      promises.push(Bot.notifyAboutUpdate(update));
     }
     return Promise.all(promises);
   }

@@ -71,9 +71,20 @@ class Bot {
     });
   }
 
-  async notifyAboutUpdate(product) {
+  async notifyAboutUpdate(update) {
+    const product = update.product;
+    const priceDelta = update.old.price - update.new.price;
+    let updateText;
+    if (priceDelta > 0) {
+      updateText = `is now at ${update.new.price}€ (-${priceDelta}€)`
+    } else if (priceDelta < 0) {
+      updateText = `is now at ${update.new.price}€ (+${priceDelta * -1}€)`
+    } else {
+      updateText = `is available again`;
+    }
     const telegramId = (await UserController.getById(product.userId)).telegramId;
-    const text = `There are new updates for your product [${product.name}](${secrets.domain}/products/${product._id})`;
+    const url = `[${product.name}](${secrets.domain}/products/${product._id})`;
+    const text = `Your product ${url} ${updateText}.`;
     this.telegraf.telegram.sendMessage(telegramId, text, Telegraf.Extra.markdown())
   }
 
