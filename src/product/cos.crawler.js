@@ -89,7 +89,8 @@ class Crawler {
   }
 
   isSizeAvailable(id) {
-    return this.getSizes().find(s => s.id === id).isAvailable;
+    const size = this.getSizes().find(s => s.id === id);
+    return size && size.isAvailable;
   }
 
   getPrice() {
