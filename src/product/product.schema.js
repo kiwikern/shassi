@@ -69,7 +69,10 @@ productSchema.virtual('store').get(function () {
     return 'COS';
   } else if (this.url.includes('about' + 'you')) {
     return 'ABOUT YOU';
+  } else if (this.url.includes('amazon')) {
+    return 'Amazon';
   } else {
+    console.warn('Could not find store for URL', this.url);
     return '';
   }
 });
